@@ -1,1 +1,469 @@
-你好
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">生日快乐！Happy Birthday!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Noto+Sans+SC:wght@300;700&display=swap" rel="stylesheet">
+    <style>
+        /* ----------------------- 通用和主页面 CSS ----------------------- */
+        :root {
+            --primary-color: #ff6f91; /* 主色调：粉色 */
+            --secondary-color: #ffd670; /* 次色调：金色/黄色 */
+            --text-color: #333;
+            --bg-color: #f7f7f7;
+            --card-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            overflow: hidden; 
+        }
+
+        /* 主页面样式 */
+        .birthday-page {
+            position: absolute; 
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-image: url('YOUR_BACKGROUND_IMAGE_URL_HERE');
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(5px);
+            transition: background-color 1s ease;
+            opacity: 0; 
+            pointer-events: none; 
+        }
+        
+        .page-loaded {
+            opacity: 1; 
+            pointer-events: auto;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .is-birthday {
+            background-color: #ffccff; 
+            box-shadow: inset 0 0 100px rgba(255, 100, 150, 0.5);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 90%;
+            width: 500px;
+            z-index: 10;
+        }
+        
+        h1 { font-family: 'Dancing Script', cursive; color: var(--primary-color); font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); }
+        h2 { color: var(--secondary-color); font-size: 1.5em; margin-top: 0; transition: all 0.5s ease; }
+        .message { margin: 20px 0; line-height: 1.6; font-size: 1.1em; color: var(--text-color); }
+        #main-image { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 5px solid var(--secondary-color); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease; }
+        .is-birthday #main-image { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .language-toggle { position: absolute; top: 20px; right: 20px; padding: 10px 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s; z-index: 100; }
+        .language-toggle:hover { background-color: #e55a7b; }
+        .balloon { position: absolute; width: 60px; height: 80px; border-radius: 50%; bottom: -100px; opacity: 0.8; animation: floatUp 15s infinite ease-in; z-index: 5; }
+        .balloon:before { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 2px; height: 50px; background-color: #fff; }
+        /* 气球颜色和动画属性保持不变 */
+        @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0.5; } 50% { opacity: 1; } 100% { transform: translateY(-1200px) rotate(30deg); opacity: 0; } }
+        .birthday-page:not(.is-birthday) .balloon { display: none; }
+
+
+        /* ----------------------- 预加载动画 CSS ----------------------- */
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2b3353, #0a0e28); /* 深色背景更适合烟花 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+            font-size: 8vw;
+            font-weight: 700;
+        }
+
+        .preloader-text {
+            font-family: 'Dancing Script', cursive;
+            transition: transform 0.5s, opacity 0.5s;
+            position: relative;
+        }
+
+        /* 步骤 2 & 4: 数字和文字容器 */
+        #age-number-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15vw;
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: opacity 0.5s;
+        }
+
+        /* 22 -> 23 过渡动画 */
+        .digit-transition-effect {
+            animation: blurScaleAndReplace 1.2s forwards;
+            display: inline-block; /* 确保动画应用 */
+        }
+
+        @keyframes blurScaleAndReplace {
+            0% { transform: scale(1); filter: blur(0); opacity: 1; color: white; }
+            40% { transform: scale(1.5); filter: blur(10px); opacity: 0; color: var(--secondary-color); }
+            60% { transform: scale(0.5); filter: blur(10px); opacity: 0; color: white; }
+            100% { transform: scale(1); filter: blur(0); opacity: 1; color: white; }
+        }
+
+        /* 步骤 3: 祝你生日快乐文字效果 */
+        .full-greeting {
+            position: absolute; /* 使其覆盖在数字上 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: white;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        
+        .greeting-top {
+            display: flex;
+            align-items: flex-start;
+            position: absolute;
+        }
+        
+        /* 保持 23 的位置和大小不变 */
+        .age-placeholder {
+            visibility: hidden; /* 占位数字，确保其他文字围绕它布局 */
+            font-size: 1em;
+        }
+
+        .text-overlay-1, .text-overlay-2, .text-overlay-3 {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            font-weight: 300;
+        }
+        
+        /* 精确定位文字到 23 的周围 */
+        .text-overlay-1 { /* 祝你 */
+            font-size: 0.3em;
+            top: -0.4em;
+            left: 50%;
+            transform: translate(-50%, 0) scale(0.8);
+            color: var(--secondary-color);
+        } 
+        
+        .text-overlay-2 { /* 岁 */
+            font-size: 0.3em;
+            bottom: 0;
+            right: -0.8em;
+            transform: translate(0, 50%) scale(0.8);
+            color: var(--secondary-color);
+        }
+        
+        .text-overlay-3 { /* 生日快乐! */
+            font-size: 0.5em;
+            bottom: -0.8em;
+            transform: translate(0, 50%) scale(0.8);
+            color: var(--primary-color);
+        }
+
+        .animate-in {
+            opacity: 1;
+            transform: translate(0, 0) scale(1) !important;
+        }
+
+        /* ----------------------- 步骤 4: 增强的烟花效果 CSS ----------------------- */
+        .fireworks {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: fireworkExplode 1.5s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+            box-shadow: 
+                0 0 15px 5px var(--secondary-color),
+                0 0 30px 10px var(--primary-color),
+                0 0 50px 15px #84dcc6; /* 中心光芒 */
+        }
+        
+        /* 使用伪元素制造爆炸碎片和光芒 */
+        .fireworks::before, .fireworks::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 
+                -100px -100px 15px rgba(255, 255, 0, 0.8), /* 黄色碎片 */
+                100px 100px 15px rgba(255, 0, 255, 0.8), /* 品红碎片 */
+                -50px 50px 20px rgba(0, 255, 255, 0.8); /* 青色碎片 */
+            animation: sparkTrail 1.5s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+        }
+
+        @keyframes fireworkExplode {
+            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(100); opacity: 0; }
+        }
+
+        @keyframes sparkTrail {
+            0% { opacity: 1; transform: scale(1); filter: blur(0); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: scale(0); filter: blur(5px); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div id="preloader-content">
+            </div>
+    </div>
+
+
+    <div class="birthday-page" id="main-content">
+
+        <div class="balloon"></div>
+        <div class="balloon"></div>
+        <div class="balloon"></div>
+        <div class="balloon"></div>
+        <div class="balloon"></div>
+        
+        <button id="lang-toggle" class="language-toggle">English</button>
+
+        <div class="card">
+            <img id="main-image" src="YOUR_FRIEND_PHOTO_URL_HERE" alt="Friend's Photo">
+
+            <h1 id="greeting-title"></h1>
+            <h2 id="subtitle"></h2>
+            
+            <p id="main-message" class="message"></p>
+            
+            <p id="signature" class="message"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // JavaScript 代码开始
+
+        // ------------------ 🎂 必改配置信息 🎂 ------------------
+        const FRIEND_NAME = "亲爱的朋友"; 
+        const BIRTHDAY_DAY = 26; 
+        const ACTUAL_BIRTHDAY_MONTH = 9; // 10月是 9
+        const BIRTH_YEAR = 2002; // 确保 2025 年是 23 岁
+        // ----------------------------------------------------
+
+
+        // ------------------ 动画专用配置 ------------------
+        const ANIMATION_CURRENT_AGE = 22; // 动画从 22 岁开始
+        const ANIMATION_NEXT_AGE = 23;    // 动画结束于 23 岁
+        // ----------------------------------------------------
+
+
+        // 祝福语配置保持不变
+        const MESSAGES = {
+            zh: {
+                birthday_title: (age) => `${FRIEND_NAME}，${age} 岁生日快乐！🎉`,
+                birthday_subtitle: "愿你所有的愿望都能实现！",
+                birthday_message: "今天是属于你的特别日子！请尽情享受快乐和惊喜。新的一岁，愿你继续闪耀，勇敢追梦，幸福安康！🎁🎂",
+                not_birthday_title: (age) => `期待 ${age} 岁生日！`,
+                not_birthday_subtitle: (daysLeft) => `距离你下一次生日还有 ${daysLeft} 天`,
+                not_birthday_message: "虽然今天不是你的生日，但每一天都值得庆祝。提前为你送上最美好的祝愿！",
+                signature: "—— 爱你的朋友",
+                toggle_to: "English",
+                page_title: "生日快乐！"
+            },
+            en: {
+                birthday_title: (age) => `Happy ${age}th Birthday, ${FRIEND_NAME}! 🎉`,
+                birthday_subtitle: "May all your wishes come true!",
+                birthday_message: "It's your special day! Enjoy all the joy and surprises. In the new year of your life, may you continue to shine, chase your dreams bravely, and enjoy health and happiness! 🎁🎂",
+                not_birthday_title: (age) => `Looking forward to your ${age}th Birthday!`,
+                not_birthday_subtitle: (daysLeft) => `Countdown: ${daysLeft} days left until your next birthday`,
+                not_birthday_message: "Even though it's not your birthday today, every day is worth celebrating. Sending you the best wishes in advance!",
+                signature: "—— Your loving friend",
+                toggle_to: "中文",
+                page_title: "Happy Birthday!"
+            }
+        };
+        let currentLang = 'zh';
+
+        // 核心逻辑：年龄和倒计时计算（与上次修复版相同）
+        function calculateAgeAndStatus() {
+            // **重要提醒:** 生产环境请使用：const today = new Date();
+            // 当前调试环境：2025年10月26日
+            const today = new Date(); 
+            const currentYear = today.getFullYear();
+            const todayMonth = today.getMonth();
+            const todayDay = today.getDate();
+
+            const isBirthday = (todayDay === BIRTHDAY_DAY && todayMonth === ACTUAL_BIRTHDAY_MONTH);
+            
+            let nextBirthdayYear = currentYear;
+            if (todayMonth > ACTUAL_BIRTHDAY_MONTH || (todayMonth === ACTUAL_BIRTHDAY_MONTH && todayDay > BIRTHDAY_DAY)) {
+                nextBirthdayYear++;
+            }
+            
+            const nextBirthday = new Date(nextBirthdayYear, ACTUAL_BIRTHDAY_MONTH, BIRTHDAY_DAY);
+            const ageToDisplay = nextBirthday.getFullYear() - BIRTH_YEAR;
+
+            let diffTime = nextBirthday.getTime() - today.getTime();
+            let daysLeft = isBirthday ? 0 : Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return { age: ageToDisplay, isBirthday, daysLeft };
+        }
+
+        // ------------------ 预热动画逻辑（已修正） ------------------
+
+        const PRELOADER_CONTENT = document.getElementById('preloader-content');
+        const LOADING_SCREEN = document.getElementById('loading-screen');
+        const MAIN_CONTENT = document.getElementById('main-content');
+        const { isBirthday } = calculateAgeAndStatus();
+
+        function runPreloaderAnimation() {
+            if (!isBirthday) {
+                // 如果今天不是生日，直接进入主页面（跳过动画）
+                hidePreloader();
+                return;
+            }
+
+            // 步骤 1: "Hi, xxx" (0.5s)
+            setTimeout(() => {
+                PRELOADER_CONTENT.innerHTML = `<span class="preloader-text">Hi, ${FRIEND_NAME.replace('亲爱的', '')}</span>`;
+            }, 500);
+
+            // 步骤 2: 22 跨越到 23 (2.5s)
+            setTimeout(() => {
+                PRELOADER_CONTENT.innerHTML = `
+                    <div id="age-number-container">
+                        <span id="digit-1" class="age-main-text">${ANIMATION_CURRENT_AGE.toString().charAt(0)}</span>
+                        <span id="digit-2" class="age-main-text digit-transition-effect">${ANIMATION_CURRENT_AGE.toString().charAt(1)}</span>
+                    </div>
+                `;
+                
+                // 替换数字
+                setTimeout(() => {
+                    document.getElementById('digit-2').textContent = ANIMATION_NEXT_AGE.toString().charAt(1);
+                    document.getElementById('digit-2').classList.remove('digit-transition-effect');
+                }, 1200); // 1.2s 是动画持续时间
+                
+            }, 2500);
+
+            // 步骤 3: 23 上下左右出现文字 (4.5s)
+            setTimeout(() => {
+                PRELOADER_CONTENT.innerHTML = `
+                    <div id="age-number-container">
+                        <div class="full-greeting">
+                            <span class="text-overlay-1" id="o1">祝你</span>
+                            <span class="age-placeholder">${ANIMATION_NEXT_AGE}</span>
+                            <span class="text-overlay-2" id="o2">岁</span>
+                            <span class="text-overlay-3" id="o3">生日快乐！</span>
+                        </div>
+                        <span id="digit-1" class="age-main-text">${ANIMATION_NEXT_AGE.toString().charAt(0)}</span>
+                        <span id="digit-2" class="age-main-text">${ANIMATION_NEXT_AGE.toString().charAt(1)}</span>
+                    </div>
+                `;
+                
+                // 文字弹出动画
+                setTimeout(() => {
+                    document.getElementById('o1').classList.add('animate-in');
+                    document.getElementById('o2').classList.add('animate-in');
+                    document.getElementById('o3').classList.add('animate-in');
+                }, 100);
+            }, 4500);
+
+            // 步骤 4: 替换成烟花 (7.0s)
+            setTimeout(() => {
+                PRELOADER_CONTENT.innerHTML = `<div class="fireworks"></div>`;
+            }, 7000); 
+
+            // 步骤 5: 进入主页面 (9.5s)
+            setTimeout(() => {
+                hidePreloader();
+            }, 9500); 
+        }
+
+        function hidePreloader() {
+            LOADING_SCREEN.style.opacity = '0';
+            MAIN_CONTENT.classList.add('page-loaded');
+            
+            setTimeout(() => {
+                LOADING_SCREEN.remove();
+                updateContent();
+            }, 1000);
+        }
+
+        // ------------------ 主页面渲染逻辑 ------------------
+        function updateContent() {
+            const { age, isBirthday, daysLeft } = calculateAgeAndStatus();
+            const langData = MESSAGES[currentLang];
+            
+            const titleElement = document.getElementById('greeting-title');
+            const subtitleElement = document.getElementById('subtitle');
+            const messageElement = document.getElementById('main-message');
+            const signatureElement = document.getElementById('signature');
+            const pageContainer = document.querySelector('.birthday-page');
+            const langToggleBtn = document.getElementById('lang-toggle');
+            const pageTitle = document.getElementById('page-title');
+
+            if (isBirthday) {
+                titleElement.textContent = langData.birthday_title(age);
+                subtitleElement.textContent = langData.birthday_subtitle;
+                messageElement.textContent = langData.birthday_message;
+                pageContainer.classList.add('is-birthday');
+            } else {
+                titleElement.textContent = langData.not_birthday_title(age);
+                subtitleElement.textContent = langData.not_birthday_subtitle(daysLeft);
+                messageElement.textContent = langData.not_birthday_message;
+                pageContainer.classList.remove('is-birthday');
+            }
+
+            signatureElement.textContent = langData.signature;
+            langToggleBtn.textContent = langData.toggle_to;
+            pageTitle.textContent = langData.page_title;
+            
+            document.documentElement.lang = currentLang;
+        }
+        
+        // ------------------ 事件监听器 ------------------
+
+        document.getElementById('lang-toggle').addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            updateContent();
+        });
+
+        // ------------------ 初始化 ------------------
+        
+        runPreloaderAnimation();
+        
+        setInterval(updateContent, 60 * 60 * 1000); 
+
+    </script>
+</body>
+</html>
