@@ -1,398 +1,96 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title id="page-title">生日快乐！Happy Birthday!</title>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Noto+Sans+SC:wght@300;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #ff6f91;
-      --secondary-color: #ffd670;
-      --text-color: #333;
-      --bg-color: #f7f7f7;
-      --card-bg: rgba(255, 255, 255, 0.9);
-    }
-    body {
-      font-family: 'Noto Sans SC', sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: var(--bg-color);
-      overflow: hidden;
-    }
-    .birthday-page {
-      position: absolute;
-      width: 100%;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-image: url('YOUR_BACKGROUND_IMAGE_URL_HERE');
-      background-size: cover;
-      background-position: center;
-      backdrop-filter: blur(5px);
-      transition: background-color 1s ease;
-      opacity: 0;
-      pointer-events: none;
-    }
-    .page-loaded {
-      opacity: 1;
-      pointer-events: auto;
-      transition: opacity 1s ease-in-out;
-    }
-    .is-birthday {
-      background-color: #ffccff;
-      box-shadow: inset 0 0 100px rgba(255, 100, 150, 0.5);
-    }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      text-align: center;
-      max-width: 90%;
-      width: 500px;
-      z-index: 10;
-    }
-    h1 {
-      font-family: 'Dancing Script', cursive;
-      color: var(--primary-color);
-      font-size: 3em;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-      color: var(--secondary-color);
-      font-size: 1.5em;
-      margin-top: 0;
-      transition: all 0.5s ease;
-    }
-    .message {
-      margin: 20px 0;
-      line-height: 1.6;
-      font-size: 1.1em;
-      color: var(--text-color);
-    }
-    #main-image {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 20px;
-      border: 5px solid var(--secondary-color);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-    .is-birthday #main-image {
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    .language-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 10px 15px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.3s;
-      z-index: 100;
-    }
-    .language-toggle:hover { background-color: #e55a7b; }
-
-    /* 预加载动画 */
-    #loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #2b3353, #0a0e28);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      color: white;
-      z-index: 9999;
-      opacity: 1;
-      transition: opacity 1s ease-in-out;
-      font-size: 8vw;
-      font-weight: 700;
-    }
-    .preloader-text {
-      font-family: 'Dancing Script', cursive;
-      transition: transform 0.5s, opacity 0.5s;
-      position: relative;
-    }
-    #age-number-container {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 15vw;
-      font-family: 'Noto Sans SC', sans-serif;
-      transition: opacity 0.5s;
-    }
-    .digit-transition-effect {
-      animation: blurScaleAndReplace 1.2s forwards;
-      display: inline-block;
-    }
-    @keyframes blurScaleAndReplace {
-      0% { transform: scale(1); filter: blur(0); opacity: 1; color: white; }
-      40% { transform: scale(1.5); filter: blur(10px); opacity: 0; color: var(--secondary-color); }
-      60% { transform: scale(0.5); filter: blur(10px); opacity: 0; color: white; }
-      100% { transform: scale(1); filter: blur(0); opacity: 1; color: white; }
-    }
-
-    .full-greeting {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Noto Sans SC', sans-serif;
-      color: white;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .age-placeholder { visibility: hidden; }
-    #age-number-container { position: relative; z-index: 1; }
-
-    .text-overlay-1 {
-      font-size: 0.25em;
-      top: -1.2em;
-      left: 50%;
-      transform: translateX(-50%);
-      position: absolute;
-      color: #ffd670;
-      text-shadow: 0 0 5px rgba(0,0,0,0.3);
-    }
-    .text-overlay-2 {
-      font-size: 0.25em;
-      bottom: -0.8em;
-      right: -1.2em;
-      position: absolute;
-      color: #ffd670;
-      text-shadow: 0 0 5px rgba(0,0,0,0.3);
-    }
-    .text-overlay-3 {
-      font-size: 0.35em;
-      bottom: -2em;
-      left: 50%;
-      transform: translateX(-50%);
-      position: absolute;
-      color: #ff6f91;
-      text-shadow: 0 0 8px rgba(255,105,180,0.6);
-    }
-    .animate-in { opacity: 1; transform: translate(0,0) scale(1)!important; }
-
-    /* 烟花效果 */
-    .fireworks {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #fff, transparent);
-      animation: fireworkCenter 0.8s ease-out forwards;
-    }
-    @keyframes fireworkCenter {
-      0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-    }
-    .fireworks::before, .fireworks::after {
-      content: '';
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--secondary-color), transparent);
-      animation: fireworkBurst 1.5s ease-out infinite;
-    }
-    @keyframes fireworkBurst {
-      0% { transform: scale(1) translate(0, 0); opacity: 1; }
-      100% { transform: scale(0.8) translate(200px, -200px); opacity: 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Birthday Wishes</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="loading-screen">
-    <div id="preloader-content"></div>
-  </div>
 
-  <div class="birthday-page" id="main-content">
-    <button id="lang-toggle" class="language-toggle">English</button>
-    <div class="card">
-      <img id="main-image" src="YOUR_FRIEND_PHOTO_URL_HERE" alt="Friend's Photo">
-      <h1 id="greeting-title"></h1>
-      <h2 id="subtitle"></h2>
-      <p id="main-message" class="message"></p>
-      <p id="signature" class="message"></p>
-    </div>
-  </div>
+    <button id="lang-toggle">English</button>
 
-  <script>
-    const FRIEND_NAME = "亲爱的朋友";
-    const BIRTHDAY_DAY = 26;
-    const ACTUAL_BIRTHDAY_MONTH = 9; // October (0-indexed)
-    const BIRTH_YEAR = 2002;
-    const ANIMATION_CURRENT_AGE = 22;
-    const ANIMATION_NEXT_AGE = 23;
-
-    const MESSAGES = {
-      zh: {
-        birthday_title: (age) => `${FRIEND_NAME}，${age} 岁生日快乐！🎉`,
-        birthday_subtitle: "愿你所有的愿望都能实现！",
-        birthday_message: "今天是属于你的特别日子！请尽情享受快乐和惊喜。新的一岁，愿你继续闪耀，勇敢追梦，幸福安康！🎁🎂",
-        not_birthday_title: (age) => `期待 ${age} 岁生日！`,
-        not_birthday_subtitle: (daysLeft) => `距离你下一次生日还有 ${daysLeft} 天`,
-        not_birthday_message: "虽然今天不是你的生日，但每一天都值得庆祝。提前为你送上最美好的祝愿！",
-        signature: "—— 爱你的朋友",
-        toggle_to: "English",
-        page_title: "生日快乐！"
-      },
-      en: {
-        birthday_title: (age) => `Happy ${age}th Birthday, ${FRIEND_NAME}! 🎉`,
-        birthday_subtitle: "May all your wishes come true!",
-        birthday_message: "It's your special day! Enjoy all the joy and surprises. In the new year of your life, may you continue to shine, chase your dreams bravely, and enjoy health and happiness! 🎁🎂",
-        not_birthday_title: (age) => `Looking forward to your ${age}th Birthday!`,
-        not_birthday_subtitle: (daysLeft) => `Countdown: ${daysLeft} days left until your next birthday`,
-        not_birthday_message: "Even though it's not your birthday today, every day is worth celebrating. Sending you the best wishes in advance!",
-        signature: "—— Your loving friend",
-        toggle_to: "中文",
-        page_title: "Happy Birthday!"
-      }
-    };
-    let currentLang = 'zh';
-
-    function calculateAgeAndStatus() {
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const todayMonth = today.getMonth();
-      const todayDay = today.getDate();
-
-      const isBirthday = (todayDay === BIRTHDAY_DAY && todayMonth === ACTUAL_BIRTHDAY_MONTH);
-      let nextBirthdayYear = currentYear;
-      if (todayMonth > ACTUAL_BIRTHDAY_MONTH || (todayMonth === ACTUAL_BIRTHDAY_MONTH && todayDay > BIRTHDAY_DAY)) {
-        nextBirthdayYear++;
-      }
-      const nextBirthday = new Date(nextBirthdayYear, ACTUAL_BIRTHDAY_MONTH, BIRTHDAY_DAY);
-      const ageToDisplay = nextBirthday.getFullYear() - BIRTH_YEAR;
-      const diffTime = nextBirthday.getTime() - today.getTime();
-      const daysLeft = isBirthday ? 0 : Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return { age: ageToDisplay, isBirthday, daysLeft };
-    }
-
-    const PRELOADER_CONTENT = document.getElementById('preloader-content');
-    const LOADING_SCREEN = document.getElementById('loading-screen');
-    const MAIN_CONTENT = document.getElementById('main-content');
-    const { isBirthday } = calculateAgeAndStatus();
-
-    function runPreloaderAnimation() {
-      if (!isBirthday) { hidePreloader(); return; }
-
-      setTimeout(() => {
-        PRELOADER_CONTENT.innerHTML = `<span class="preloader-text">Hi, ${FRIEND_NAME.replace('亲爱的', '')}</span>`;
-      }, 500);
-
-      setTimeout(() => {
-        PRELOADER_CONTENT.innerHTML = `
-          <div id="age-number-container">
-            <span id="digit-1" class="age-main-text">${ANIMATION_CURRENT_AGE.toString().charAt(0)}</span>
-            <span id="digit-2" class="age-main-text digit-transition-effect">${ANIMATION_CURRENT_AGE.toString().charAt(1)}</span>
-          </div>`;
-        const digit2 = document.getElementById('digit-2');
-        setTimeout(() => { digit2.textContent = ANIMATION_NEXT_AGE.toString().charAt(1); }, 400);
-        setTimeout(() => { digit2.classList.remove('digit-transition-effect'); }, 1200);
-      }, 2500);
-
-      setTimeout(() => {
-        PRELOADER_CONTENT.innerHTML = `
-          <div id="age-number-container">
-            <div class="full-greeting">
-              <span class="text-overlay-1" id="o1">祝你</span>
-              <span class="age-placeholder">${ANIMATION_NEXT_AGE}</span>
-              <span class="text-overlay-2" id="o2">岁</span>
-              <span class="text-overlay-3" id="o3">生日快乐！</span>
+    <div id="intro-animation">
+        <div id="intro-chat" class="intro-step">
+            <div class="chat-bubble">你好！</div>
+            <div class="chat-bubble">最近在看什么书？</div>
+            <div class="chat-bubble">皮一下很开心🤭</div>
+            <div class="chat-bubble">咳咳...</div>
+            <div class="chat-bubble">今天是一个特殊的日子🎉</div>
+            <div class="chat-bubble">为你准备了一个我自认为还算特别的礼物...🎁</div>
+            <div class="chat-bubble">一个独属于你的生日网站🙌</div>
+            <div class="chat-bubble">做的不好也不要打我哦baby🫡</div>
+            <!-- 聊天结束后显示的继续按钮 -->
+            <div id="chat-next-container" style="display:none; margin-top:16px;">
+                <button id="chat-next-button"><span class="confetti-left"></span>Go!<span class="confetti-right"></span></button>
             </div>
-            <span id="digit-1" class="age-main-text">${ANIMATION_NEXT_AGE.toString().charAt(0)}</span>
-            <span id="digit-2" class="age-main-text">${ANIMATION_NEXT_AGE.toString().charAt(1)}</span>
-          </div>`;
-        setTimeout(() => {
-          document.getElementById('o1').classList.add('animate-in');
-          document.getElementById('o2').classList.add('animate-in');
-          document.getElementById('o3').classList.add('animate-in');
-        }, 100);
-      }, 4500);
+        </div>
 
-      setTimeout(() => {
-        PRELOADER_CONTENT.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-          const fw = document.createElement('div');
-          fw.className = 'fireworks';
-          fw.style.top = `${50 + Math.random() * 30 - 15}%`;
-          fw.style.left = `${50 + Math.random() * 30 - 15}%`;
-          PRELOADER_CONTENT.appendChild(fw);
-        }
-      }, 7000);
+        <div id="intro-date" class="intro-step">
+            <!-- 新的日期行：11 与 中间 09，后续 10 从右侧进入 -->
+            <div class="date-row">
+                <span class="date-num" id="date-left">11</span>
+                <span class="date-num" id="date-mid">09</span>
+                <span class="date-num incoming" id="date-in">10</span>
+            </div>
+            <!-- date-text removed per user request -->
+            <!-- 合并后的小点（备用） -->
+            <div id="date-dot" aria-hidden="true"></div>
+            <!-- 底部逐句上升的消息区 -->
+            <div id="date-messages" aria-live="polite">
+                <p class="msg-line" id="msg-line-1"></p>
+                <p class="msg-line" id="msg-line-2"></p>
+                <p class="msg-line" id="msg-line-3"></p>
+                <p class="msg-line" id="msg-line-4"></p>
+            </div>
+        </div>
 
-      setTimeout(() => { hidePreloader(); }, 9500);
-    }
+        <div id="intro-popper" class="intro-step">
+            <!-- 烟花筒图标：初始隐藏，日期动画会把点替换为这个元素 -->
+            <div id="popper-button" role="button" aria-label="点燃惊喜">🎉</div>
+            <p data-lang-zh="按住这里，点燃惊喜" data-lang-en="Hold here to light the surprise">按住这里，点燃惊喜</p>
+        </div>
 
-    function hidePreloader() {
-      LOADING_SCREEN.style.opacity = '0';
-      MAIN_CONTENT.classList.add('page-loaded');
-      setTimeout(() => {
-        LOADING_SCREEN.remove();
-        updateContent();
-      }, 1000);
-    }
+        <div id="intro-fireworks" class="intro-step">
+            <div class="firework"></div>
+            <div class="firework"></div>
+            <div class="firework"></div>
+        </div>
+    </div>
 
-    function updateContent() {
-      const { age, isBirthday, daysLeft } = calculateAgeAndStatus();
-      const langData = MESSAGES[currentLang];
-      const title = document.getElementById('greeting-title');
-      const subtitle = document.getElementById('subtitle');
-      const msg = document.getElementById('main-message');
-      const sig = document.getElementById('signature');
-      const page = document.querySelector('.birthday-page');
-      const toggle = document.getElementById('lang-toggle');
-      const pageTitle = document.getElementById('page-title');
+    <div id="main-birthday-page" class="page-container">
 
-      if (isBirthday) {
-        title.textContent = langData.birthday_title(age);
-        subtitle.textContent = langData.birthday_subtitle;
-        msg.textContent = langData.birthday_message;
-        page.classList.add('is-birthday');
-      } else {
-        title.textContent = langData.not_birthday_title(age);
-        subtitle.textContent = langData.not_birthday_subtitle(daysLeft);
-        msg.textContent = langData.not_birthday_message;
-        page.classList.remove('is-birthday');
-      }
-      sig.textContent = langData.signature;
-      toggle.textContent = langData.toggle_to;
-      pageTitle.textContent = langData.page_title;
-      document.documentElement.lang = currentLang;
-    }
+        <h1 data-lang-zh="生日快乐, 刘怡君!" data-lang-en="Happy Birthday, Liu Yijun!">生日快乐, 刘怡君!</h1>
+        
+        <div id="cake-container">
+            <img id="cake-img" src="./cake.svg" alt="蛋糕">
+        </div>
 
-    document.getElementById('lang-toggle').addEventListener('click', () => {
-      currentLang = currentLang === 'zh' ? 'en' : 'zh';
-      updateContent();
-    });
+        <p id="cake-hint" data-lang-zh="✨ 点一下蛋糕，许个心愿吧 ✨" data-lang-en="✨ Click the cake and make a wish ✨">✨ 点一下蛋糕，许个心愿吧 ✨</p>
 
-    runPreloaderAnimation();
-  </script>
+        <div id="birthday-wishes">
+            <!-- 祝福内容会动态生成 -->
+        </div>
+
+        <!-- 背景音乐 -->
+        <audio id="birthday-song" src="./song.mp3" loop></audio>
+    </div>
+
+    <div id="countdown-page" class="page-container">
+        <h1>
+            <span class="countdown-prefix" data-lang-zh="距离" data-lang-en="Countdown to ">距离</span>
+            <span class="highlight-name" data-lang-zh="刘怡君" data-lang-en="Liu Yijun">刘怡君</span>
+            <span class="countdown-suffix" data-lang-zh="的生日还有：" data-lang-en="'s Birthday:">的生日还有：</span>
+        </h1>
+        <div id="timer">
+            <span id="days">x</span> 天
+            <span id="hours">x</span> 时
+            <span id="minutes">x</span> 分
+            <span id="seconds">x</span> 秒
+        </div>
+        <h2 data-lang-zh="要快快乐乐地期待人生的每一个生日！" data-lang-en="Look forward to every birthday in life with joy!">要快快乐乐地期待人生的每一个生日！—— hyc</h2>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,0 +1,563 @@
+/* --- 1. 全局和基础设置 --- */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;500&display=swap');
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Noto Sans SC', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    overflow: hidden; /* 防止动画期间出现滚动条 */
+    -webkit-touch-callout: none; /* 禁用 iOS 长按菜单 */
+    -webkit-user-select: none; /* 禁用文本选择 */
+    user-select: none;
+}
+
+.page-container {
+    display: none; /* 页面默认都隐藏 */
+    opacity: 0;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 20px;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1s ease-in-out;
+}
+
+/* --- 2. 过场动画 (Intro) --- */
+#intro-animation {
+    display: none; /* JS会控制它显示 */
+    opacity: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 100;
+    transition: opacity 1s ease-in-out;
+}
+
+.intro-step {
+    display: none; /* 步骤默认隐藏 */
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 步骤 1: 聊天 */
+#intro-chat {
+    align-items: flex-start;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.chat-bubble {
+    background-color: #dcf8c6;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+/* 逐条显示聊天 */
+.chat-bubble:nth-child(2) { animation-delay: 1.5s; }
+.chat-bubble:nth-child(3) { animation-delay: 3s; }
+
+/* 聊天区“继续”按钮样式 */
+#chat-next-container {
+    display: none;
+    width: 100%;
+    text-align: center;
+    margin-top: 12px;
+}
+#chat-next-button {
+    background: linear-gradient(90deg,#ff7f50,#ff6b6b);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    transition: transform 120ms ease, box-shadow 120ms ease, opacity 200ms ease;
+    -webkit-tap-highlight-color: transparent; /* 移除触摸高亮 */
+}
+#chat-next-button:hover { transform: translateY(-2px); }
+#chat-next-button:active { transform: translateY(0); }
+
+/* 进入动画（从小变大并淡入） */
+/* 更强烈的进入动画与光晕/彩带效果 */
+#chat-next-button {
+    position: relative;
+    opacity: 0;
+    transform: translateY(12px) scale(0.92);
+    transition: transform 420ms cubic-bezier(.18,.9,.2,1), opacity 300ms ease;
+}
+#chat-next-button.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* 按钮文字微动画（闪烁 / 渐变） */
+.text-anim {
+    animation: text-glow 1200ms ease-in-out;
+}
+@keyframes text-glow {
+    0% { box-shadow: 0 0 0 rgba(255,255,255,0); filter: brightness(1); }
+    30% { box-shadow: 0 0 22px rgba(255,200,120,0.18); filter: brightness(1.15); }
+    60% { box-shadow: 0 0 10px rgba(255,120,160,0.12); filter: brightness(1.05); }
+    100% { box-shadow: 0 0 0 rgba(255,255,255,0); filter: brightness(1); }
+}
+
+/* 更明显的光晕和发光 */
+#chat-next-button::after {
+    content: '';
+    position: absolute;
+    left: -10px; right: -10px; top: -10px; bottom: -10px;
+    border-radius: 14px;
+    background: radial-gradient(circle at 30% 20%, rgba(255,220,140,0.25), transparent 15%), radial-gradient(circle at 80% 80%, rgba(255,110,110,0.12), transparent 25%);
+    z-index: -2;
+    filter: blur(18px);
+    opacity: 0;
+    transition: opacity 360ms ease, transform 360ms ease;
+}
+#chat-next-button.show::after { opacity: 1; transform: scale(1); }
+
+/* 左右彩带更显眼（使用内层 span） */
+.confetti-left, .confetti-right {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    margin: 0 8px;
+    vertical-align: middle;
+    transform-origin: center;
+}
+.confetti-left { background: linear-gradient(45deg,#ffd166,#ff6b6b); animation: confetti-pop 1100ms ease-in-out infinite; }
+.confetti-right { background: linear-gradient(45deg,#8bd3ff,#7fff7f); animation: confetti-pop 1000ms ease-in-out infinite reverse; }
+
+@keyframes confetti-pop {
+    0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    40% { transform: translateY(-10px) rotate(25deg) scale(1.05); opacity: 1; }
+    100% { transform: translateY(8px) rotate(90deg) scale(0.9); opacity: 0; }
+}
+
+/* 强烈的环状脉冲（边缘光） */
+.chat-ring {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: 180%; height: 180%; border-radius: 50%; pointer-events: none; z-index: -3;
+    background: radial-gradient(circle, rgba(255,200,100,0.12), transparent 40%);
+    filter: blur(22px); opacity: 0; transition: opacity 360ms ease;
+}
+#chat-next-button.show + .chat-ring { opacity: 1; }
+
+/* 步骤 2: 日期 */
+/* 改良版日期区域：更轻快的背景与更好看的数字行 */
+#intro-date {
+    background: linear-gradient(135deg, #fff7f0 0%, #f0fbff 100%);
+    color: #222;
+    padding: 30px 10px;
+}
+.date-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.2vw;
+    position: relative; /* 方便绝对定位 incoming */
+}
+.date-num {
+    font-size: 8vw; /* 更小一些，看起来更精致 */
+    font-weight: 800;
+    color: #ff6b6b;
+    display: inline-block;
+    line-height: 1;
+    text-shadow: 0 6px 20px rgba(255,107,107,0.08);
+    transition: transform 260ms ease, opacity 260ms ease;
+}
+.date-num.incoming {
+    /* 初始放到右侧（通过 JS 设置 absolute 起始位置），视觉上从右侧进入 */
+    position: absolute;
+    right: -8vw;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+}
+.date-text {
+    font-size: 3.8vw;
+    color: #444;
+    margin-top: 12px;
+    opacity: 0;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    transform: translateY(6px);
+}
+
+/* 消息区：从屏幕底部缓缓升起的句子 */
+#date-messages {
+    margin-top: 12px;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+.msg-line {
+    font-size: 2.2vw;
+    color: #333;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 420ms ease, transform 500ms cubic-bezier(.2,.9,.2,1);
+    line-height: 1.6;
+    white-space: nowrap;
+}
+.msg-line.rise {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 特殊强调样式 */
+.special-you {
+    display: inline-block;
+    font-weight: 900;
+    color: #ff4861;
+    transform-origin: center;
+}
+@keyframes pop-zoom {
+    0% { transform: scale(0.6); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+    60% { transform: scale(1.08); filter: drop-shadow(0 8px 20px rgba(255,72,97,0.12)); }
+    100% { transform: scale(1); }
+}
+
+/* 方块背景强调 */
+.boxed {
+    display: inline-block;
+    background: linear-gradient(90deg,#ffd166,#ff7f7f);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    margin-left: 6px;
+    transform-origin: left center;
+    animation: boxed-pop 520ms cubic-bezier(.2,.9,.2,1);
+}
+@keyframes boxed-pop {
+    0% { transform: translateY(10px) scale(0.9); opacity: 0; }
+    60% { transform: translateY(-4px) scale(1.04); opacity: 1; }
+    100% { transform: translateY(0) scale(1); }
+}
+
+/* 碰撞反馈动画（短暂的抖动） */
+.collide {
+    animation: collide-bump 320ms cubic-bezier(.2,.9,.2,1) both;
+}
+@keyframes collide-bump {
+    0% { transform: translateY(0); }
+    30% { transform: translateY(-10px) rotate(-4deg); }
+    60% { transform: translateY(4px) rotate(2deg); }
+    100% { transform: translateY(0) rotate(0); }
+}
+
+/* 合并成点的样式 */
+#date-dot {
+    width: 18px;
+    height: 18px;
+    background: #ffcc00;
+    border-radius: 50%;
+    opacity: 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.2);
+    transition: transform 0.8s ease, opacity 0.4s ease, top 1s ease;
+    pointer-events: none;
+    z-index: 120;
+}
+
+/* 下落到屏幕底部变成烟花筒图标时的类 */
+.dot-drop {
+    transform: translate(-50%, -50%) scale(1);
+    top: 82%;
+    opacity: 1;
+}
+
+/* 步骤 3: 烟花筒 */
+#intro-popper {
+    background-color: #222;
+    color: white;
+}
+#popper-button {
+    font-size: 100px;
+    cursor: pointer;
+    animation: pulse 1.5s infinite;
+    transition: transform 0.2s;
+    -webkit-tap-highlight-color: transparent; /* 移除触摸高亮 */
+    touch-action: none; /* 防止缩放等手势 */
+}
+#popper-button:hover {
+    transform: scale(1.1);
+}
+#intro-popper p {
+    font-size: 20px;
+    opacity: 0.7;
+}
+
+/* 步骤 4: 烟花 (你的核心要求) */
+#intro-fireworks {
+    background: #000;
+    /* 这是实现流畅过渡的关键 */
+    animation: fadeToTransparent 2s forwards 3s;
+}
+.firework {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    /* 烟花动画 */
+    animation: firework-explode 1.2s ease-out forwards;
+}
+/* 随机放置烟花 */
+.firework:nth-child(1) { top: 20%; left: 30%; animation-delay: 0.5s; }
+.firework:nth-child(2) { top: 50%; left: 50%; animation-delay: 1s; }
+.firework:nth-child(3) { top: 40%; left: 70%; animation-delay: 1.5s; }
+
+/* --- 3. 生日主页 --- */
+#lang-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent; /* 移除触摸高亮 */
+}
+
+.birthday-image {
+    max-width: 90%;
+    height: auto;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+#cake-container {
+    position: relative;
+    cursor: pointer;
+    margin: 20px 0;
+    perspective: 1000px;
+}
+
+#cake-img {
+    width: 280px;
+    height: 280px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.15));
+    animation: cakeBounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    transition: transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#cake-img:hover {
+    transform: scale(1.08);
+}
+
+#cake-img:active {
+    transform: scale(0.95);
+}
+
+/* 蛋糕弹出入场动画 */
+@keyframes cakeBounceIn {
+    0% {
+        opacity: 0;
+        transform: translateY(100px) scale(0.3) rotateZ(-15deg);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-15px) scale(1.05) rotateZ(5deg);
+    }
+    75% {
+        transform: translateY(-5px) scale(0.98) rotateZ(-2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateZ(0deg);
+    }
+}
+
+#cake-hint {
+    font-size: 1.4vw;
+    color: #ff6b6b;
+    margin: 10px 0;
+    opacity: 0;
+    animation: fadeIn 0.6s ease 0.8s forwards;
+}
+
+/* 祝福区域 */
+#birthday-wishes {
+    margin-top: 30px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.wish-line {
+    font-size: 1.8vw;
+    color: #333;
+    opacity: 0;
+    text-align: center;
+    line-height: 1.8;
+    animation: wishFadeIn 0.6s ease forwards;
+}
+
+.wish-line:nth-child(1) { animation-delay: 0.3s; }
+.wish-line:nth-child(2) { animation-delay: 0.6s; }
+.wish-line:nth-child(3) { animation-delay: 0.9s; }
+.wish-line:nth-child(4) { animation-delay: 1.2s; }
+
+@keyframes wishFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 旧的弹窗样式保留备用 */
+#birthday-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    padding: 30px 50px;
+    border-radius: 15px;
+    z-index: 200;
+    opacity: 0;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* --- 4. 倒计时页面 --- */
+#timer {
+    font-size: 2em;
+    font-weight: 500;
+    background-color: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+#timer span {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #007bff;
+    margin: 0 5px;
+}
+
+/* =================================================
+  关键动画 (Keyframes)
+  =================================================
+*/
+
+/* 淡入 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 飞入 */
+@keyframes flyInLeft {
+    from { opacity: 0; transform: translateX(-100px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes flyInRight {
+    from { opacity: 0; transform: translateX(100px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* 脉冲 (提示点击) */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* 璀璨的烟花 (核心) */
+@keyframes firework-explode {
+    0% {
+        opacity: 1;
+        transform: scale(0);
+        box-shadow: 
+            0 0 0 0 #fff,
+            0 0 0 0 #ff0,
+            0 0 0 0 #f0f,
+            0 0 0 0 #0ff;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1);
+        /* 粒子向四周散开 */
+        box-shadow: 
+            0 100px 20px 0 #fff, 0 -100px 20px 0 #fff,
+            100px 0 20px 0 #ff0, -100px 0 20px 0 #ff0,
+            70px 70px 20px 0 #f0f, -70px -70px 20px 0 #f0f,
+            70px -70px 20px 0 #0ff, -70px 70px 20px 0 #0ff;
+    }
+}
+
+/* 烟花背景淡出 (实现流畅过渡) */
+@keyframes fadeToTransparent {
+    from { background-color: #000; }
+    to { background-color: transparent; }
+}
+
+/* 弹窗 */
+@keyframes popIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 确保动画在移动设备上平滑 */
+.firework.dynamic {
+    width: 6px; height: 6px; border-radius: 50%;
+    animation: firework-rise 900ms cubic-bezier(.2,.8,.2,1) forwards;
+    will-change: transform, opacity; /* 优化性能 */
+}
+
+/* 倒计时标题中高亮姓名 */
+.highlight-name {
+    color: #ff6b6b;
+    background: linear-gradient(90deg, rgba(255,107,107,0.12), rgba(255,183,77,0.08));
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    margin: 0 6px;
+    box-shadow: 0 6px 18px rgba(255,107,107,0.06);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.highlight-name:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(255,107,107,0.12);
+}
