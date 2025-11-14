@@ -8,8 +8,6 @@
 </head>
 <body>
 
-    <button id="lang-toggle">English</button>
-
     <div id="intro-animation">
         <div id="intro-chat" class="intro-step">
             <div class="chat-bubble">你好！</div>
@@ -22,7 +20,7 @@
             <div class="chat-bubble">做的不好也不要打我哦baby🫡</div>
             <!-- 聊天结束后显示的继续按钮 -->
             <div id="chat-next-container" style="display:none; margin-top:16px;">
-                <button id="chat-next-button"><span class="confetti-left"></span>Go!<span class="confetti-right"></span></button>
+                <button id="chat-next-button"><span class="confetti-left"></span>开启<span class="confetti-right"></span></button>
             </div>
         </div>
 
@@ -45,11 +43,7 @@
             </div>
         </div>
 
-        <div id="intro-popper" class="intro-step">
-            <!-- 烟花筒图标：初始隐藏，日期动画会把点替换为这个元素 -->
-            <div id="popper-button" role="button" aria-label="点燃惊喜">🎉</div>
-            <p data-lang-zh="按住这里，点燃惊喜" data-lang-en="Hold here to light the surprise">按住这里，点燃惊喜</p>
-        </div>
+        <!-- 烟花筒页面已移除（简化流程，直接从日期进入烟花动画） -->
 
         <div id="intro-fireworks" class="intro-step">
             <div class="firework"></div>
@@ -59,18 +53,29 @@
     </div>
 
     <div id="main-birthday-page" class="page-container">
+        <!-- 动态背景装饰 -->
+        <div id="background-decoration">
+            <div class="falling-star"></div>
+            <div class="falling-star"></div>
+            <div class="falling-star"></div>
+            <div class="falling-balloon"></div>
+            <div class="falling-balloon"></div>
+        </div>
 
-        <h1 data-lang-zh="生日快乐, 刘怡君!" data-lang-en="Happy Birthday, Liu Yijun!">生日快乐, 刘怡君!</h1>
+        <h1>生日快乐, 刘怡君!</h1>
         
         <div id="cake-container">
             <img id="cake-img" src="./cake.svg" alt="蛋糕">
         </div>
 
-        <p id="cake-hint" data-lang-zh="✨ 点一下蛋糕，许个心愿吧 ✨" data-lang-en="✨ Click the cake and make a wish ✨">✨ 点一下蛋糕，许个心愿吧 ✨</p>
+        <p id="cake-hint">✨ 可以点一下蛋糕哦！ ✨</p>
 
         <div id="birthday-wishes">
             <!-- 祝福内容会动态生成 -->
         </div>
+
+        <!-- 互动元素：送礼物按钮 -->
+        <button id="gift-button" style="display: none;">🎁 送你一个礼物</button>
 
         <!-- 背景音乐 -->
         <audio id="birthday-song" src="./song.mp3" loop></audio>
@@ -78,9 +83,9 @@
 
     <div id="countdown-page" class="page-container">
         <h1>
-            <span class="countdown-prefix" data-lang-zh="距离" data-lang-en="Countdown to ">距离</span>
-            <span class="highlight-name" data-lang-zh="刘怡君" data-lang-en="Liu Yijun">刘怡君</span>
-            <span class="countdown-suffix" data-lang-zh="的生日还有：" data-lang-en="'s Birthday:">的生日还有：</span>
+            <span class="countdown-prefix">距离</span>
+            <span class="highlight-name">刘怡君</span>
+            <span class="countdown-suffix">的生日还有：</span>
         </h1>
         <div id="timer">
             <span id="days">x</span> 天
@@ -88,7 +93,8 @@
             <span id="minutes">x</span> 分
             <span id="seconds">x</span> 秒
         </div>
-        <h2 data-lang-zh="要快快乐乐地期待人生的每一个生日！" data-lang-en="Look forward to every birthday in life with joy!">要快快乐乐地期待人生的每一个生日！—— hyc</h2>
+        <h2>要快快乐乐地期待人生的每一个生日！—— hyc</h2>
+        <button id="preview-birthday-btn">预览生日惊喜</button>
     </div>
 
     <script src="script.js"></script>
