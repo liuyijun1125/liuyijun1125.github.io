@@ -330,6 +330,61 @@ body, html {
 .firework:nth-child(2) { top: 50%; left: 50%; animation-delay: 1s; }
 .firework:nth-child(3) { top: 40%; left: 70%; animation-delay: 1.5s; }
 
+/* 黑色烟花界面：标题、星光与火花 */
+#intro-fireworks {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+}
+
+#intro-fireworks .intro-message {
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+}
+#intro-fireworks .intro-message h1 {
+    font-size: 3.2rem;
+    margin: 0 0 6px 0;
+    color: #ffd166;
+    text-shadow: 0 8px 30px rgba(255,150,100,0.18), 0 2px 8px rgba(255,120,140,0.12);
+    transform: translateY(-6px);
+    animation: introTitlePop 800ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+#intro-fireworks .intro-message p {
+    margin: 0; color: #fff; opacity: 0.9; font-size: 1.05rem;
+    text-shadow: 0 6px 20px rgba(0,0,0,0.6);
+}
+@keyframes introTitlePop {
+    0% { transform: translateY(10px) scale(.96); opacity: 0; }
+    60% { transform: translateY(-6px) scale(1.06); opacity: 1; }
+    100% { transform: translateY(0) scale(1); }
+}
+
+/* 小闪烁星点 */
+#intro-fireworks .star {
+    position: absolute; width: 4px; height: 4px; border-radius: 50%;
+    background: radial-gradient(circle, #fff, #ffd700); opacity: 0.0; z-index: 5;
+    box-shadow: 0 0 8px rgba(255,220,120,0.7);
+    will-change: transform, opacity;
+}
+@keyframes star-twinkle {
+    0% { opacity: 0; transform: scale(.6); }
+    40% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(.7); }
+}
+
+/* 局部的火花，从底部向上冒出并散开 */
+#intro-fireworks .spark {
+    position: absolute; width: 8px; height: 8px; border-radius: 50%;
+    background: radial-gradient(circle, #fff, #ff7f50); opacity: 0.95; z-index: 8;
+    filter: drop-shadow(0 8px 22px rgba(255,120,120,0.18));
+}
+
+
 /* --- 3. 生日主页 --- */
 
 .birthday-image {

@@ -4,6 +4,9 @@ const BIRTHDAY_DAY = 10;   // 11日
 
 // 持久烟花定时器（用于在用户点击蛋糕后持续产生烟花）
 let cakeFireworksTimer = null;
+// intro 烟花/星光定时器
+let introFireworksTimer = null;
+
 
 // 当整个网页加载完毕后运行
 window.addEventListener('DOMContentLoaded', () => {
@@ -110,8 +113,12 @@ async function startBirthdaySequence() {
     // 直接进入烟花动画界面（已移除烟花筒页）
     console.log('跳过烟花筒页，进入烟花动画界面');
     dateStep.style.display = 'none'; // 隐藏日期步骤
+    // 初始化并启动 intro 烟花/星光效果
+    try { setupIntroFireworks(fireworksStep); } catch (e) { console.error(e); }
     fireworksStep.style.display = 'flex';
     await sleep(3000); // 烟花动画展示 3 秒
+    // 停止并清理 intro 特效（进入主页面前）
+    try { stopIntroFireworks(); } catch (e) { console.error(e); }
 
     // 所有操作完成后，淡出 intro 并进入主页面
     console.log('进入主页面');
@@ -136,6 +143,74 @@ function createDynamicFirework(container) {
     container.appendChild(el);
     // 清理元素
     el.addEventListener('animationend', () => el.remove());
+}
+
+// 初始化 intro 烟花界面的特效（标题、星光与周期性火花）
+function setupIntroFireworks(container) {
+    try {
+        if (!container) return;
+        if (container.dataset.introInit) return; // already initialized
+        container.dataset.introInit = '1';
+
+        // 标题信息
+        const msg = document.createElement('div');
+        msg.className = 'intro-message';
+        msg.innerHTML = `<h1>生日快乐 🎉</h1><p>愿你被世界温柔以待</p>`;
+        container.appendChild(msg);
+
+        // 随机星点
+        const starCount = 24;
+        for (let i = 0; i < starCount; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            const left = Math.random() * 100;
+            const top = Math.random() * 80 + 5;
+            s.style.left = left + '%';
+            s.style.top = top + '%';
+            const dur = 800 + Math.random() * 1200;
+            const delay = Math.random() * 1200;
+            s.style.animation = `star-twinkle ${dur}ms ease-in-out ${delay}ms infinite`;
+            container.appendChild(s);
+        }
+
+        // 周期性冒出火花（使用 .spark）
+        introFireworksTimer = setInterval(() => {
+            try {
+                const spark = document.createElement('div');
+                spark.className = 'spark';
+                const left = 8 + Math.random() * 84; // avoid edges
+                const bottom = 10 + Math.random() * 20;
+                spark.style.left = left + '%';
+                spark.style.top = 70 + Math.random() * 20 + '%';
+                // 随机大小与颜色
+                const size = 6 + Math.random() * 14;
+                spark.style.width = size + 'px'; spark.style.height = size + 'px';
+                container.appendChild(spark);
+
+                // 向上并散开
+                const tx = (Math.random() - 0.5) * 160;
+                const ty = -120 - Math.random() * 120;
+                spark.style.transition = 'transform 900ms cubic-bezier(.2,.9,.2,1), opacity 900ms ease';
+                requestAnimationFrame(() => {
+                    spark.style.transform = `translate(${tx}px, ${ty}px) scale(0.6)`;
+                    spark.style.opacity = '0';
+                });
+                setTimeout(() => { try { spark.remove(); } catch (e) {} }, 1100 + Math.random() * 600);
+            } catch (e) { console.error('intro spark error', e); }
+        }, 600 + Math.floor(Math.random() * 600));
+
+    } catch (e) { console.error('setupIntroFireworks error', e); }
+}
+
+function stopIntroFireworks() {
+    try {
+        if (introFireworksTimer) { clearInterval(introFireworksTimer); introFireworksTimer = null; }
+        const container = document.getElementById('intro-fireworks');
+        if (!container) return;
+        // 移除我们创建的元素
+        container.querySelectorAll('.star, .spark, .intro-message').forEach(n => n.remove());
+        delete container.dataset.introInit;
+    } catch (e) { console.error('stopIntroFireworks error', e); }
 }
 
 /** * 烟花筒按住交互功能
@@ -345,9 +420,9 @@ function showGiftPopup() {
     popup.innerHTML = `
         <h3>🎉 惊喜礼物！</h3>
         <div class="virtual-gift">💖</div>
-        <p>这是我为你准备的虚拟拥抱和祝福！愿你永远快乐！</p>
+        <p>抱抱宝宝！🤗愿你永远快乐！🥰</p>
         <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
-            <button id="surprise-compliment" style="padding:8px 12px; border-radius:8px; border:none; background:linear-gradient(90deg,#ffd166,#ff7f7f); color:#333; cursor:pointer;">惊喜祝福</button>
+            <button id="surprise-compliment" style="padding:8px 12px; border-radius:8px; border:none; background:linear-gradient(90deg,#ffd166,#ff7f7f); color:#333; cursor:pointer;">随机祝福</button>
             <button id="close-popup" style="padding:8px 12px; border-radius:8px; border:none; background:linear-gradient(90deg,#ff7f50,#ff6b6b); color:white; cursor:pointer;">关闭</button>
         </div>
     `;
@@ -372,11 +447,11 @@ function showGiftPopup() {
 
 // 小惊喜短弹窗（随机祝福）
 const compliments = [
-    '你今天看起来特别温柔✨',
-    '愿你的笑容永远灿烂🌞',
-    '愿你拥有想要的一切美好💕',
+    '愿你每天都能被小美好包围✨',
+    '祝你的笑容永远灿烂！🌞',
+    '我的宝宝天天开心天天快乐！💕',
     '每一天都被温柔以待🌸',
-    '你值得被世界温柔相待✨'
+    'Hope your day’s filled with joys baby! 🎈',
 ];
 
 function showComplimentPopup() {
