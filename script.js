@@ -58,7 +58,7 @@ async function startBirthdaySequence() {
     chatStep.style.display = 'flex';
     // 按顺序给每个 .chat-bubble 设置动画延迟，确保新增的行也按顺序出现
     const bubbles = Array.from(chatStep.querySelectorAll('.chat-bubble'));
-    const gapMs = 15; // 每条气泡间隔（毫秒），可根据需要调整
+    const gapMs = 1200; // 每条气泡间隔（毫秒），可根据需要调整
     const animDurationMs = 500; // 与 CSS 中 fadeIn 时长一致
     bubbles.forEach((b, i) => {
         // 使用内联样式覆盖 CSS，确保按索引延迟
