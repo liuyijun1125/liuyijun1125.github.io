@@ -1,6 +1,6 @@
 // 生日常量（全局可用）
 const BIRTHDAY_MONTH = 10; // 11月 (0-11)
-const BIRTHDAY_DAY = 10;   // 11日
+const BIRTHDAY_DAY = 18;   // 11日
 
 // 持久烟花定时器（用于在用户点击蛋糕后持续产生烟花）
 let cakeFireworksTimer = null;
